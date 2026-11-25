@@ -1,0 +1,12 @@
+metric,EEGNet (2018),A: plain CNN,B: plain CNN + context,oneconv,Full model (v3)
+Parameters,,0.67M,1.21M,0.85M,9.96M
+HR MAE (bpm),7.41,7.8275,7.9066,6.289,4.3
+HR r,,0.203,0.1802,0.533,0.7299
+RMSSD MAE (ms),,28.1629,27.1114,28.016,28.1186
+RMSSD r,,0.0063,0.133,0.159,0.205
+Stress AUC,0.59,0.5971,0.5961,0.665,0.7194
+Stage accuracy,0.673,0.5797,0.6507,0.764,0.7494
+Stage kappa,0.515,0.3928,0.4844,0.653,0.6258
+Stage macro F1,,0.5133,0.5984,0.709,0.6931
+Disorder balanced acc (6 classes),0.299,0.3137,0.3326,0.347,0.378
+Healthy vs disorder AUC,0.753,0.7282,0.765,0.715,0.8154

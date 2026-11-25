@@ -1,0 +1,9 @@
+method,HR MAE (bpm),HR r,RMSSD r,stress AUC,stress AUC (HR-only def.),sleep stage acc,sleep stage kappa,sleep stage macro F1,disorder 6-class bal. acc,disorder 6-class macro F1,healthy vs disorder AUC
+"Sharma et al. 2021 (EEG, sub-bands + Hjorth, boosted trees)",7.592,0.203,0.023,0.580,0.659,0.629,0.431,0.520,0.264,0.211,0.701
+"Sharma et al. 2022 (EMG, wavelet + Hjorth, bagged trees)",7.915,0.146,-0.023,0.531,0.577,0.447,0.123,0.321,0.224,0.204,0.806
+"Band power + Random Forest (EEG + EMG, classic baseline)",7.747,0.229,0.027,0.575,0.637,0.672,0.495,0.593,0.286,0.266,0.732
+"EEGNet, Lawhern et al. 2018 (EEG + EMG)",7.413,0.284,0.101,0.590,0.658,0.673,0.515,0.588,0.299,0.279,0.753
+"AttnSleep, Eldele et al. 2021 (EEG)",7.668,0.206,0.049,0.587,0.652,0.671,0.501,0.543,0.275,0.222,0.785
+"TinySleepNet, Supratak & Guo 2020 (EEG + EMG, CNN + LSTM, 60-s context)",6.301,0.527,0.149,0.646,0.706,0.739,0.605,0.648,0.295,0.251,0.616
+"Cheng et al. 2023 (EEG + EMG, spectrogram CNNs + fusion NN)",5.019,0.674,0.087,0.695,0.792,0.689,0.521,0.530,0.399,0.388,0.750
+"Proposed PMRT, EEG + EMG (ours)",4.300,0.730,0.205,0.719,0.796,0.749,0.626,0.693,0.378,0.383,0.815
