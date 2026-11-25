@@ -1,74 +1,44 @@
-# PMRT-SleepStress
+<p align="center">
+  <img src="assets/banner.png" alt="PMRT-SleepStress: EEG and chin EMG to heart rate, stress index, sleep stage and disorder type" width="100%">
+</p>
 
-![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
-![PyTorch](https://img.shields.io/badge/PyTorch-2.x-red)
-![License](https://img.shields.io/badge/License-MIT-green)
-![Status](https://img.shields.io/badge/Status-Research-lightgrey)
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.9%2B-blue" alt="Python">
+  <img src="https://img.shields.io/badge/PyTorch-2.x-red" alt="PyTorch">
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
+  <img src="https://img.shields.io/badge/Status-Research-lightgrey" alt="Status">
+</p>
 
-Multi-task deep learning on sleep **EEG + chin EMG** to estimate heart rate, heart-rate variability, a physiological stress index, sleep stage and sleep-disorder type, without using ECG as an input.
+**PMRT-SleepStress** estimates a physiological stress index during sleep from **EEG and chin EMG only**. One multi-task network reads 5-s windows and predicts heart rate, heart-rate variability, sleep stage and sleep-disorder type. ECG is used to build the training labels and is never a model input.
 
----
+## Highlights
 
-## Overview
-
-During sleep, ECG is rarely available outside a sleep lab, while EEG and chin EMG are recorded in every polysomnography. This project trains one network that reads 5-s windows of EEG and chin EMG and predicts, for each window:
-
-- **HR** (bpm) and **ln RMSSD**, which together define a stress index
-- **sleep stage** (N1, N2, N3, REM)
-- **disorder type** (6 classes, per subject after averaging the night)
-
-ECG is used **only to build the HR and RMSSD labels**. It is never a model input.
-
-The network follows the PMRT design and adds a 60-s temporal context:
-
-```
-EEG (1x625) ───────► Phy-SE-ResNet ─┐
-                                      ├─► Cross-Modal Fusion (stages 2-4) ─► FPN (P1, P2, P3)
-chin EMG (1x625) ───► Phy-SE-ResNet ─┘                                         │
-                                                                              ▼
- 12 consecutive windows (60 s) ─► Transformer (2 layers, 4 heads) ─► context c (128-d)
-                                                                              │
- per task (HR, RMSSD, disorder, stage): 3 MLP heads on [GAP(P_l); c], one per FPN level,
- combined by a softmax-weighted sum
-```
-
-9.96 M parameters. Training uses subject-balanced sampling, signal augmentation, label smoothing, weight decay, EMA of the weights (0.999) and early stopping; two checkpoints are kept per fold (stress score and subject-level disorder loss).
-
----
-
-## Dataset
-
-[CAP Sleep Database](https://physionet.org/content/capslpdb/1.0.0/) (PhysioNet, Open Data Commons Attribution License v1.0): 103 subjects used, 483,170 windows of 5 s at 125 Hz.
-External check: 100 subjects of the PhysioNet/CinC Challenge 2018 data. Download and preprocessing steps: [`data/README.md`](data/README.md).
-
-**Stress index.** `SI = z(HR) - z(RMSSD)`, z-scored inside each record on raw RMSSD; stress if `SI > 1` (24.2% of windows). Equal weights and the threshold are assumptions of this work.
-
----
-
-## Evaluation protocol
-
-5-fold subject-wise cross-validation (stratified by diagnostic group, each subject tested once). For each fold: 3 folds train, 1 validation, 1 test. One seed (42).
+- **No ECG at inference.** EEG and chin EMG are recorded in every polysomnography, so the model works where ECG is missing or noisy.
+- **One network, four outputs:** HR, ln RMSSD (together a stress index), sleep stage, disorder type.
+- **60-s temporal context:** a small Transformer shares information between 12 consecutive windows.
+- **Compared on one protocol:** seven other methods, same subject-wise folds, windows and labels.
+- **Checked on external data:** 100 subjects of PhysioNet/CinC Challenge 2018, no retraining.
 
 ---
 
 ## Results
 
-Final model (v3), CAP Sleep Database, all 103 subjects pooled over the test folds:
+CAP Sleep Database, 103 subjects, 5-fold subject-wise cross-validation, all test folds pooled.
 
-| Task | Metric | Value |
+| Task | Metric | PMRT |
 |---|---|---|
-| Heart rate | MAE | 4.30 bpm (median baseline 7.72) |
+| Heart rate | MAE (bpm) | **4.30** (median baseline 7.72) |
 | Heart rate | Pearson r | 0.73 |
 | Stress detection | AUC | 0.72 |
 | Sleep stage (4 classes) | accuracy / kappa | 0.75 / 0.63 |
 | Healthy vs disorder | AUC | 0.82 |
-| Disorder, 6 classes | balanced accuracy | 0.38 (chance 0.17) |
+| Disorder (6 classes) | balanced accuracy | 0.38 (chance 0.17) |
 
-External data (CinC 2018, 100 subjects, no retraining on it): HR MAE 4.26 bpm, stress AUC 0.74, stage kappa 0.534 (95% CIs in [`results/external_validation_cinc2018.csv`](results/external_validation_cinc2018.csv)).
+**External data (CinC 2018, 100 subjects):** HR MAE 4.26 bpm, stress AUC 0.74, stage kappa 0.534. Confidence intervals: [`results/external_validation_cinc2018.csv`](results/external_validation_cinc2018.csv).
 
-### Comparison under the same protocol
+### Comparison with other methods
 
-All methods use the same folds, windows and labels ([`results/tableB01_comparison_same_protocol.csv`](results/tableB01_comparison_same_protocol.csv)).
+Same folds, windows and labels for every method ([`results/tableB01_comparison_same_protocol.csv`](results/tableB01_comparison_same_protocol.csv)).
 
 | Method | HR MAE | Stress AUC | Stage kappa | Disorder bal. acc | Healthy vs disorder AUC |
 |---|---|---|---|---|---|
@@ -77,63 +47,61 @@ All methods use the same folds, windows and labels ([`results/tableB01_compariso
 | Band power + Random Forest | 7.75 | 0.575 | 0.495 | 0.286 | 0.732 |
 | EEGNet (Lawhern et al. 2018) | 7.41 | 0.590 | 0.515 | 0.299 | 0.753 |
 | AttnSleep (Eldele et al. 2021) | 7.67 | 0.587 | 0.501 | 0.275 | 0.785 |
-| TinySleepNet (Supratak & Guo 2020) | 6.30 | 0.646 | 0.605 | 0.295 | 0.616 |
+| TinySleepNet (Supratak and Guo 2020) | 6.30 | 0.646 | 0.605 | 0.295 | 0.616 |
 | Cheng et al. 2023 | 5.02 | 0.695 | 0.521 | **0.399** | 0.750 |
 | **PMRT (this repo)** | **4.30** | **0.719** | **0.626** | 0.378 | **0.815** |
 
-Cheng et al. is ahead on 6-class disorder accuracy and macro F1. Paired per-subject Wilcoxon test against TinySleepNet: HR MAE better in 90 of 103 subjects (p = 2.7e-12); stage accuracy not significantly different (p = 0.168); stage kappa p = 0.042 without multiple-comparison correction.
+Cheng et al. is ahead on 6-class disorder accuracy and macro F1. A paired per-subject Wilcoxon test against TinySleepNet gives HR MAE better in 90 of 103 subjects (p = 2.7e-12); stage accuracy does not differ significantly (p = 0.168); stage kappa p = 0.042 without multiple-comparison correction.
 
 <p align="center">
-  <img src="assets/results/roc/roc_stress.png" width="360">
-  <img src="assets/results/confusion_matrix/confusion_sleep_stage.png" width="360">
+  <img src="assets/results/roc/roc_stress.png" width="340" alt="ROC curve, stress detection">
+  <img src="assets/results/confusion_matrix/confusion_sleep_stage.png" width="340" alt="Confusion matrix, sleep stage">
 </p>
 
-### Limitations
+---
 
-- One seed per experiment. Bootstrap CIs resample subjects, so they do not capture training variance.
-- Few subjects in the disorder classes (Narcolepsy 5, Insomnia 9, PLM 10); the 6-class result is weak.
-- The stress label comes from ECG and is relative to each subject's own night. RMSSD is predicted poorly (r = 0.21); the stress index is mostly driven by HR.
-- Possible ECG leakage into the chin EMG channel was not checked.
-- One external dataset only.
-- Ablations show most of the gain comes from the overall framework (multi-task, temporal context, fusion), not from the Phy-SE feature extractor. The separate contribution of Fusion and FPN was not measured.
+## How it works
+
+<p align="center">
+  <img src="assets/pipeline.png" alt="PMRT-SleepStress pipeline" width="900">
+</p>
+
+1. **Input.** EEG and chin EMG, band-pass filtered and resampled to 125 Hz, cut into 5-s windows (1 x 625 per channel).
+2. **Two branches.** A Phy-SE-ResNet per modality; features from stages 2 to 4 are kept.
+3. **Cross-Modal Fusion** at each of those stages, then a **feature pyramid** (P1, P2, P3).
+4. **Temporal context.** The pooled P1 to P3 features of 12 consecutive windows go through a Transformer (2 layers, 4 heads) and give a 128-d context vector for each window.
+5. **Multi-scale heads.** For each task, three MLP heads (one per pyramid level) take the pooled level features and the context; their outputs are combined by a softmax-weighted sum.
+
+9.96 M parameters. Training uses subject-balanced sampling, signal augmentation, label smoothing, weight decay, EMA of the weights (0.999) and early stopping. Two checkpoints are kept per fold: one by validation stress score, one by subject-level disorder loss.
 
 ---
 
-## Project structure
+## Data and labels
 
-```
-PMRT-SleepStress/
-├── main.py                  # build-cache, train (5-fold CV)
-├── configs/config.py        # constants and hyper-parameters
-├── data/
-│   ├── dataset.py           # cache, folds, batch iterators, augmentation
-│   └── README.md            # dataset download and preprocessing
-├── models/
-│   ├── phy_se_resnet.py     # branch for one modality
-│   ├── fusion.py            # Cross-Modal Fusion
-│   ├── model.py             # FPN, multi-scale predictors, temporal context, PMRTTemporal
-│   └── checkpoints/         # not tracked
-├── src/
-│   ├── losses.py            # target encoding, multi-task loss
-│   ├── train.py             # one fold + 5-fold loop
-│   ├── eval.py              # predict, validation scores
-│   └── utils.py             # EMA
-├── tests/smoke_test.py      # end-to-end check on small synthetic data (CPU)
-├── notebooks/               # the notebooks the reported numbers were produced with
-├── tables/                  # 22 tables of the final model (CSV)
-├── results/                 # model comparison, external validation, ablations
-└── assets/results/          # ROC, confusion matrices, feature plots
-```
+[CAP Sleep Database](https://physionet.org/content/capslpdb/1.0.0/) (PhysioNet, Open Data Commons Attribution License v1.0): 103 subjects, 483,170 windows of 5 s at 125 Hz. Download and preprocessing steps are in [`data/README.md`](data/README.md).
+
+| Label | How it is built |
+|---|---|
+| HR | RR intervals of the 5-s window from ECG (at least 3 beats) |
+| ln RMSSD | RR intervals of the surrounding 60 s |
+| Stress index | `SI = z(HR) - z(RMSSD)`, z-scored inside each record; stress if `SI > 1` (24.2% of windows) |
+| Sleep stage | N1, N2, N3, REM from the expert hypnogram |
+| Disorder | Healthy, NFLE, RBD, PLM, Insomnia, Narcolepsy (SDB and Bruxism have too few subjects for this head) |
+
+Equal weights and the threshold 1 in the stress index are assumptions of this work, not taken from a source.
 
 ---
 
-## Usage
+## Quick start
 
 ```bash
 pip install -r requirements.txt
 
+# check the installation without the dataset (synthetic data, CPU, about a minute)
+python tests/smoke_test.py
+
 # 1. preprocessing: run notebooks/cap_download.ipynb and notebooks/cap_preprocessing.ipynb
-#    (they produce one .npz per record)
+#    (one .npz per record)
 
 # 2. merge into x.npy + index.csv
 python main.py build-cache --npz-dir /path/cap_processed --cache-dir /path/cap_dataset_cache
@@ -142,34 +110,50 @@ python main.py build-cache --npz-dir /path/cap_processed --cache-dir /path/cap_d
 python main.py train --cache-dir /path/cap_dataset_cache --run-dir runs/pmrt_mt3_cv5
 ```
 
-To check the installation without the dataset, run `python tests/smoke_test.py`: it builds a cache from random data and trains one fold for one epoch on CPU (about a minute). It checks that the code runs and writes the expected files, not accuracy.
-
-`train` writes `runs/.../fold{k}/test_pred.csv` for every fold. The final metrics, bootstrap intervals, stress validation (CAP A phases, threshold sensitivity) and the disorder analysis are computed from these files in `notebooks/pmrt_multitask_cv_v3.ipynb` (sections 9-11).
+`train` writes `runs/.../fold{k}/test_pred.csv` for every fold. Metrics, bootstrap intervals and the stress validation are computed from these files in `notebooks/pmrt_multitask_cv_v3.ipynb` (sections 9 to 11). Trained checkpoints are not included.
 
 ### Notebooks
 
-The notebooks are the runs behind the numbers above. They were executed in a hosted notebook environment, so their first cell sets a data root path (`ROOT`) that you need to change, and several write their own copy of the model module before importing it. The package in `models/`, `src/` and `data/` contains the same model code split into files; `main.py train` mirrors section 7 of `pmrt_multitask_cv_v3.ipynb`.
+The notebooks are the runs behind the numbers above. Set the data root path (`ROOT`) in their first cell before running them.
 
 | Notebook | Content |
 |---|---|
-| `cap_download.ipynb`, `cap_preprocessing.ipynb` | download, filtering, windows, HR / RMSSD labels |
-| `pmrt_multitask_cv_v3.ipynb` | final model, 5-fold training, evaluation, stress validation |
-| `pmrt_baselines.ipynb`, `pmrt_baselines_tinysleepnet_kaggle.ipynb` | comparison with other methods on the same protocol |
-| `pmrt_ablation_fusion.ipynb`, `pmrt_ablation_kaggle.ipynb` | EEG + EMG vs EEG only vs EMG only |
-| `pmrt_module_ablation_oneconv_executed.ipynb` | with / without the feature extractor |
-| `pmrt_plaincnn.ipynb`, `pmrt_plaincnn_ctx.ipynb` | plain CNN without and with the temporal context |
-| `pmrt_external_validation_cinc2018_executed.ipynb` | external validation on CinC 2018 |
+| `cap_download`, `cap_preprocessing` | download, filtering, windows, HR / RMSSD labels |
+| `pmrt_multitask_cv_v3` | final model: training, evaluation, stress validation |
+| `pmrt_baselines`, `pmrt_baselines_tinysleepnet_kaggle` | other methods on the same protocol |
+| `pmrt_plaincnn`, `pmrt_plaincnn_ctx` | plain CNN without and with temporal context |
+| `pmrt_ablation_fusion`, `pmrt_ablation_kaggle` | EEG + EMG vs EEG only vs EMG only |
+| `pmrt_module_ablation_oneconv_executed` | with and without the feature extractor |
+| `pmrt_external_validation_cinc2018_executed` | external validation on CinC 2018 |
 
-### Training cost
+---
 
-About 76 s per epoch for the final model and 5-6 h per notebook run on the GPUs used here; the GPU of the main run was not recorded. Ablations and comparisons ran on a Tesla T4. Library versions were not recorded, so `requirements.txt` is not pinned.
+## Project structure
 
-### What is not in the repository
+```
+PMRT-SleepStress/
+├── main.py                  # build-cache, train
+├── configs/config.py        # constants and hyper-parameters
+├── data/                    # cache, folds, batch iterators, augmentation
+├── models/                  # Phy-SE-ResNet, fusion, PMRT with temporal context
+├── src/                     # losses, training loop, evaluation, EMA
+├── tests/smoke_test.py      # end-to-end check on synthetic data
+├── notebooks/               # experiments
+├── tables/                  # 22 result tables of the final model
+├── results/                 # comparison, ablations, external validation
+└── assets/                  # banner, figures
+```
 
-- Trained checkpoints and the test predictions of the final model.
-- Baseline predictions for Sharma and Cheng (their results were read from earlier runs) and the cross-fitted stress-index table.
-- Earlier model versions (v1, v2, single-task) and the Phy-SE, StdSE and single-conv ablations.
-- `main.py` and the package were checked end to end only with `tests/smoke_test.py` (small synthetic data, CPU), not on the full dataset.
+---
+
+## Limitations
+
+- One seed per experiment. Bootstrap intervals resample subjects and do not capture training variance.
+- Few subjects in the disorder classes (Narcolepsy 5, Insomnia 9, PLM 10); the 6-class result is weak.
+- The stress label comes from ECG and is relative to each subject's own night. RMSSD is predicted poorly (r = 0.21), so the stress index is mostly driven by HR.
+- Possible ECG leakage into the chin EMG channel was not checked.
+- One external dataset only.
+- Ablations show most of the gain comes from the overall framework (multi-task learning, temporal context, fusion), not from the Phy-SE feature extractor. The separate contribution of Fusion and FPN was not measured.
 
 ---
 
