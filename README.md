@@ -148,12 +148,10 @@ The notebooks are the runs behind the numbers above. Set the data root path (`RO
 
 ## Limitations
 
-- One seed per experiment. Bootstrap intervals resample subjects and do not capture training variance.
-- Few subjects in the disorder classes (Narcolepsy 5, Insomnia 9, PLM 10); the 6-class result is weak.
+- One seed per experiment, and one external dataset. Bootstrap intervals resample subjects and do not capture training variance.
+- Few subjects in some disorder classes (Narcolepsy 5, Insomnia 9, PLM 10), so the 6-class result is weak.
 - The stress label comes from ECG and is relative to each subject's own night. RMSSD is predicted poorly (r = 0.21), so the stress index is mostly driven by HR.
 - Possible ECG leakage into the chin EMG channel was not checked.
-- One external dataset only.
-- Ablations show most of the gain comes from the overall framework (multi-task learning, temporal context, fusion), not from the Phy-SE feature extractor. The separate contribution of Fusion and FPN was not measured.
 
 ---
 
