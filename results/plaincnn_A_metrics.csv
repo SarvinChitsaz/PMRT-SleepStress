@@ -1,0 +1,11 @@
+,with module,"Plain CNN, 2-channel input (no fusion, FPN or Transformer)",difference (with - without)
+HR MAE (bpm),4.3,7.8275,-3.5275
+RMSSD MAE (ms),28.1186,28.1629,-0.0443
+HR r,0.7299,0.203,0.5269
+RMSSD r,0.205,0.0063,0.1987
+Stress AUC,0.7194,0.5971,0.1224
+Stage accuracy,0.7494,0.5797,0.1696
+Stage kappa,0.6258,0.3928,0.233
+Stage macro F1,0.6931,0.5133,0.1798
+"Disorder balanced acc (6 classes, subject level)",0.378,0.3137,0.0644
+Healthy vs disorder AUC,0.8154,0.7282,0.0872

@@ -1,0 +1,11 @@
+metric,with module,One convolution layer per branch,difference (with - without)
+HR MAE (bpm),4.300,6.289,-1.989
+RMSSD MAE (ms),28.119,28.016,0.103
+HR r,0.730,0.533,0.197
+RMSSD r,0.205,0.159,0.046
+Stress AUC,0.719,0.665,0.055
+Stage accuracy,0.749,0.764,-0.015
+Stage kappa,0.626,0.653,-0.027
+Stage macro F1,0.693,0.709,-0.016
+"Disorder balanced acc (6 classes, subject level)",0.378,0.347,0.031
+Healthy vs disorder AUC,0.815,0.715,0.100

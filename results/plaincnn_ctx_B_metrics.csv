@@ -1,0 +1,11 @@
+,with module,Plain CNN + temporal Transformer (60 s context),difference (with - without)
+HR MAE (bpm),4.3,7.9066,-3.6066
+RMSSD MAE (ms),28.1186,27.1114,1.0072
+HR r,0.7299,0.1802,0.5497
+RMSSD r,0.205,0.133,0.072
+Stress AUC,0.7194,0.5961,0.1233
+Stage accuracy,0.7494,0.6507,0.0987
+Stage kappa,0.6258,0.4844,0.1414
+Stage macro F1,0.6931,0.5984,0.0947
+"Disorder balanced acc (6 classes, subject level)",0.378,0.3326,0.0454
+Healthy vs disorder AUC,0.8154,0.765,0.0504

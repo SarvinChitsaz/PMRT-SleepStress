@@ -1,0 +1,2 @@
+method,HR MAE (bpm),HR r,RMSSD r,stress AUC,stress AUC (HR-only def.),sleep stage acc,sleep stage kappa,sleep stage macro F1,disorder 6-class bal. acc,disorder 6-class macro F1,healthy vs disorder AUC
+"TinySleepNet, Supratak & Guo 2020 (EEG + EMG, CNN + LSTM, 60-s context)",6.301,0.527,0.149,0.646,0.706,0.739,0.605,0.648,0.295,0.251,0.616
