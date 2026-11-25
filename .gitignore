@@ -1,0 +1,25 @@
+# data and run outputs
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+cap_edf/
+cap_annotations/
+cap_processed/
+cap_dataset_cache/
+runs/
+*.npz
+x.npy
+
+# checkpoints
+models/checkpoints/*.pt
+models/checkpoints/*.ckpt
+
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+venv/
+.venv/
+.vscode/
+.idea/
+.DS_Store
