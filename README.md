@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="assets/banner.png" alt="PMRT-SleepStress: EEG and chin EMG to heart rate, stress index, sleep stage and disorder type" width="100%">
-</p>
+# PMRT-SleepStress
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.9%2B-blue" alt="Python">
