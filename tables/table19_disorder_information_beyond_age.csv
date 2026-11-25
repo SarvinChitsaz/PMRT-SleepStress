@@ -1,0 +1,7 @@
+,value
+likelihood ratio (age + network vs age),17.571996795883322
+df,1.0
+p,2.7663212425077433e-05
+mean age healthy,31.307692307692307
+mean age disorders,47.4
+"corr(age, P(disorder)) within healthy",-0.1266633381300199
