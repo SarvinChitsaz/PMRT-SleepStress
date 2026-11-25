@@ -118,6 +118,7 @@ PMRT-SleepStress/
 │   ├── train.py             # one fold + 5-fold loop
 │   ├── eval.py              # predict, validation scores
 │   └── utils.py             # EMA
+├── tests/smoke_test.py      # end-to-end check on small synthetic data (CPU)
 ├── notebooks/               # the notebooks the reported numbers were produced with
 ├── tables/                  # 22 tables of the final model (CSV)
 ├── results/                 # model comparison, external validation, ablations
@@ -140,6 +141,8 @@ python main.py build-cache --npz-dir /path/cap_processed --cache-dir /path/cap_d
 # 3. 5-fold subject-wise training (resumable; a GPU is strongly recommended)
 python main.py train --cache-dir /path/cap_dataset_cache --run-dir runs/pmrt_mt3_cv5
 ```
+
+To check the installation without the dataset, run `python tests/smoke_test.py`: it builds a cache from random data and trains one fold for one epoch on CPU (about a minute). It checks that the code runs and writes the expected files, not accuracy.
 
 `train` writes `runs/.../fold{k}/test_pred.csv` for every fold. The final metrics, bootstrap intervals, stress validation (CAP A phases, threshold sensitivity) and the disorder analysis are computed from these files in `notebooks/pmrt_multitask_cv_v3.ipynb` (sections 9-11).
 
@@ -166,7 +169,7 @@ About 76 s per epoch for the final model and 5-6 h per notebook run on the GPUs 
 - Trained checkpoints and the test predictions of the final model.
 - Baseline predictions for Sharma and Cheng (their results were read from earlier runs) and the cross-fitted stress-index table.
 - Earlier model versions (v1, v2, single-task) and the Phy-SE, StdSE and single-conv ablations.
-- `main.py` and the package were checked end to end only on small synthetic data on CPU, not on the full dataset.
+- `main.py` and the package were checked end to end only with `tests/smoke_test.py` (small synthetic data, CPU), not on the full dataset.
 
 ---
 
